@@ -1,0 +1,1348 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactieve Video Editor</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #0a0e1a;
+            --bg-secondary: #12172b;
+            --bg-tertiary: #1a1f3a;
+            --accent-primary: #6366f1;
+            --accent-hover: #818cf8;
+            --text-primary: #e5e7eb;
+            --text-secondary: #9ca3af;
+            --border: #2d3548;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, var(--bg-primary) 0%, #0f1420 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 24px;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 32px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+        }
+
+        h1 {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #fff 0%, var(--accent-primary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 16px;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .video-container {
+            position: relative;
+            background: var(--bg-tertiary);
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 16px;
+        }
+
+        #videoPreview {
+            width: 100%;
+            display: block;
+            max-height: 600px;
+        }
+
+        .video-placeholder {
+            aspect-ratio: 16/9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 16px;
+            color: var(--text-secondary);
+            padding: 48px;
+            text-align: center;
+        }
+
+        .video-placeholder svg {
+            width: 64px;
+            height: 64px;
+            opacity: 0.5;
+        }
+
+        .upload-section {
+            margin-bottom: 24px;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .file-input-wrapper input[type="file"] {
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 14px 24px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s ease;
+            width: 100%;
+        }
+
+        .btn-primary {
+            background: var(--accent-primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 16px rgba(99, 102, 241, 0.4);
+        }
+
+        .btn-secondary {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg-primary);
+            border-color: var(--accent-primary);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #059669;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 16px rgba(16, 185, 129, 0.4);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .video-info {
+            display: none;
+            background: var(--bg-tertiary);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        .video-info.active {
+            display: block;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .info-value {
+            color: var(--text-primary);
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .question-form {
+            display: none;
+            gap: 16px;
+        }
+
+        .question-form.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        label {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        input[type="text"],
+        input[type="number"],
+        textarea {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px;
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        textarea:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .answers-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .answer-item {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .answer-item input[type="text"] {
+            flex: 1;
+            margin: 0;
+        }
+
+        .answer-item input[type="radio"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            accent-color: var(--success);
+        }
+
+        .btn-small {
+            padding: 8px 12px;
+            font-size: 13px;
+            width: auto;
+        }
+
+        .questions-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+            padding-right: 8px;
+        }
+
+        .questions-list::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .questions-list::-webkit-scrollbar-track {
+            background: var(--bg-tertiary);
+            border-radius: 4px;
+        }
+
+        .questions-list::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 4px;
+        }
+
+        .questions-list::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-primary);
+        }
+
+        .question-card {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px;
+            transition: all 0.2s ease;
+        }
+
+        .question-card:hover {
+            border-color: var(--accent-primary);
+            box-shadow: 0 2px 12px rgba(99, 102, 241, 0.2);
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 12px;
+        }
+
+        .question-time {
+            background: var(--accent-primary);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .question-text {
+            font-size: 15px;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+            line-height: 1.5;
+        }
+
+        .question-answers {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid var(--border);
+        }
+
+        .question-answer {
+            font-size: 13px;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .question-answer.correct {
+            color: var(--success);
+            font-weight: 500;
+        }
+
+        .btn-delete {
+            background: transparent;
+            color: var(--danger);
+            border: 1px solid var(--danger);
+            padding: 6px 12px;
+            font-size: 13px;
+        }
+
+        .btn-delete:hover {
+            background: var(--danger);
+            color: white;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 48px 24px;
+            color: var(--text-secondary);
+        }
+
+        .empty-state svg {
+            width: 48px;
+            height: 48px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .time-helper {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        @media (max-width: 1200px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .alert {
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .alert.active {
+            display: block;
+        }
+
+        .alert-success {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid var(--success);
+            color: var(--success);
+        }
+
+        .alert-error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid var(--danger);
+            color: var(--danger);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Interactieve Video Editor</h1>
+            <p class="subtitle">Versie 1.0 - Maak interactieve video's met meerkeuze vragen</p>
+        </div>
+
+        <div class="main-grid">
+            <!-- Video Preview Panel -->
+            <div class="card">
+                <h2 class="card-title">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                    </svg>
+                    Video Preview
+                </h2>
+
+                <div class="upload-section">
+                    <div class="file-input-wrapper">
+                        <button class="btn btn-primary">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="17 8 12 3 7 8"></polyline>
+                                <line x1="12" y1="3" x2="12" y2="15"></line>
+                            </svg>
+                            Upload Video
+                        </button>
+                        <input type="file" id="videoInput" accept="video/*">
+                    </div>
+                </div>
+
+                <div id="videoInfo" class="video-info">
+                    <div class="info-row">
+                        <span class="info-label">Bestandsnaam:</span>
+                        <span class="info-value" id="videoFileName">-</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Duur:</span>
+                        <span class="info-value" id="videoDuration">-</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Grootte:</span>
+                        <span class="info-value" id="videoSize">-</span>
+                    </div>
+                </div>
+
+                <div class="video-container">
+                    <div id="videoPlaceholder" class="video-placeholder">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect>
+                            <line x1="7" y1="2" x2="7" y2="22"></line>
+                            <line x1="17" y1="2" x2="17" y2="22"></line>
+                            <line x1="2" y1="12" x2="22" y2="12"></line>
+                            <line x1="2" y1="7" x2="7" y2="7"></line>
+                            <line x1="2" y1="17" x2="7" y2="17"></line>
+                            <line x1="17" y1="17" x2="22" y2="17"></line>
+                            <line x1="17" y1="7" x2="22" y2="7"></line>
+                        </svg>
+                        <p>Upload een video om te beginnen</p>
+                        <p style="font-size: 14px; margin-top: 8px;">Ondersteunde formaten: MP4, WebM, OGG</p>
+                    </div>
+                    <video id="videoPreview" controls style="display: none;"></video>
+                </div>
+
+                <div id="alert" class="alert"></div>
+            </div>
+
+            <!-- Questions Panel -->
+            <div class="card">
+                <h2 class="card-title">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                        <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                    </svg>
+                    Vragen
+                </h2>
+
+                <div id="questionForm" class="question-form">
+                    <div class="form-group">
+                        <label>Tijdstempel (seconden)</label>
+                        <input type="number" id="questionTime" placeholder="bijv. 30" min="0" step="1">
+                        <div class="time-helper">Op welk moment moet de vraag verschijnen?</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Vraag</label>
+                        <textarea id="questionText" placeholder="Typ hier je vraag..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Antwoorden (vink het juiste antwoord aan)</label>
+                        <div id="answersList" class="answers-list">
+                            <div class="answer-item">
+                                <input type="radio" name="correctAnswer" value="0" checked>
+                                <input type="text" class="answer-input" placeholder="Antwoord 1" value="">
+                            </div>
+                            <div class="answer-item">
+                                <input type="radio" name="correctAnswer" value="1">
+                                <input type="text" class="answer-input" placeholder="Antwoord 2" value="">
+                            </div>
+                            <div class="answer-item">
+                                <input type="radio" name="correctAnswer" value="2">
+                                <input type="text" class="answer-input" placeholder="Antwoord 3" value="">
+                            </div>
+                            <div class="answer-item">
+                                <input type="radio" name="correctAnswer" value="3">
+                                <input type="text" class="answer-input" placeholder="Antwoord 4" value="">
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="btn btn-secondary" id="addQuestionBtn">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                        Vraag Toevoegen
+                    </button>
+                </div>
+
+                <div id="questionsList" class="questions-list">
+                    <div class="empty-state">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                        </svg>
+                        <p>Upload eerst een video om vragen toe te voegen</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Export Panel -->
+        <div class="card">
+            <h2 class="card-title">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="7 10 12 15 17 10"></polyline>
+                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+                Exporteren
+            </h2>
+            <p style="color: var(--text-secondary); margin-bottom: 20px; font-size: 14px;">
+                Download je interactieve video als ZIP-bestand. Dit bestand kun je uploaden naar Rise 360 of je LMS.
+            </p>
+            <button class="btn btn-success" id="exportBtn" disabled>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="7 10 12 15 17 10"></polyline>
+                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+                Download Interactieve Video (ZIP)
+            </button>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script>
+        // State
+        let videoFile = null;
+        let videoBlob = null;
+        let questions = [];
+
+        // Elements
+        const videoInput = document.getElementById('videoInput');
+        const videoPreview = document.getElementById('videoPreview');
+        const videoPlaceholder = document.getElementById('videoPlaceholder');
+        const videoInfo = document.getElementById('videoInfo');
+        const questionForm = document.getElementById('questionForm');
+        const questionsList = document.getElementById('questionsList');
+        const addQuestionBtn = document.getElementById('addQuestionBtn');
+        const exportBtn = document.getElementById('exportBtn');
+        const alert = document.getElementById('alert');
+
+        // Video Upload
+        videoInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                videoFile = file;
+                const url = URL.createObjectURL(file);
+                videoBlob = file;
+                
+                videoPreview.src = url;
+                videoPreview.style.display = 'block';
+                videoPlaceholder.style.display = 'none';
+                
+                videoPreview.onloadedmetadata = function() {
+                    document.getElementById('videoFileName').textContent = file.name;
+                    document.getElementById('videoDuration').textContent = formatTime(videoPreview.duration);
+                    document.getElementById('videoSize').textContent = formatBytes(file.size);
+                    videoInfo.classList.add('active');
+                    questionForm.classList.add('active');
+                    questionsList.innerHTML = '';
+                    updateExportButton();
+                };
+
+                showAlert('Video succesvol geladen!', 'success');
+            }
+        });
+
+        // Add Question
+        addQuestionBtn.addEventListener('click', function() {
+            const time = parseFloat(document.getElementById('questionTime').value);
+            const questionText = document.getElementById('questionText').value.trim();
+            const answerInputs = document.querySelectorAll('.answer-input');
+            const correctAnswerRadio = document.querySelector('input[name="correctAnswer"]:checked');
+            
+            // Validatie
+            if (!time && time !== 0) {
+                showAlert('Vul een tijdstempel in', 'error');
+                return;
+            }
+            
+            if (time > videoPreview.duration) {
+                showAlert('Tijdstempel kan niet langer zijn dan de video duur', 'error');
+                return;
+            }
+            
+            if (!questionText) {
+                showAlert('Vul een vraag in', 'error');
+                return;
+            }
+            
+            const answers = [];
+            answerInputs.forEach((input, index) => {
+                const text = input.value.trim();
+                if (text) {
+                    answers.push({
+                        text: text,
+                        correct: index === parseInt(correctAnswerRadio.value)
+                    });
+                }
+            });
+            
+            if (answers.length < 2) {
+                showAlert('Voeg minimaal 2 antwoorden toe', 'error');
+                return;
+            }
+            
+            const hasCorrect = answers.some(a => a.correct);
+            if (!hasCorrect) {
+                showAlert('Selecteer het juiste antwoord', 'error');
+                return;
+            }
+            
+            // Vraag toevoegen
+            questions.push({
+                time: time,
+                question: questionText,
+                answers: answers
+            });
+            
+            questions.sort((a, b) => a.time - b.time);
+            
+            // Form resetten
+            document.getElementById('questionTime').value = '';
+            document.getElementById('questionText').value = '';
+            answerInputs.forEach(input => input.value = '');
+            document.querySelector('input[name="correctAnswer"][value="0"]').checked = true;
+            
+            renderQuestions();
+            updateExportButton();
+            showAlert('Vraag toegevoegd!', 'success');
+        });
+
+        // Render Questions
+        function renderQuestions() {
+            if (questions.length === 0) {
+                questionsList.innerHTML = `
+                    <div class="empty-state">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                        </svg>
+                        <p>Nog geen vragen toegevoegd</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            questionsList.innerHTML = questions.map((q, index) => `
+                <div class="question-card">
+                    <div class="question-header">
+                        <span class="question-time">${formatTime(q.time)}</span>
+                        <button class="btn btn-delete btn-small" onclick="deleteQuestion(${index})">Verwijder</button>
+                    </div>
+                    <div class="question-text">${q.question}</div>
+                    <div class="question-answers">
+                        ${q.answers.map(a => `
+                            <div class="question-answer ${a.correct ? 'correct' : ''}">
+                                ${a.correct ? '✓' : '○'} ${a.text}
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Delete Question
+        window.deleteQuestion = function(index) {
+            questions.splice(index, 1);
+            renderQuestions();
+            updateExportButton();
+            showAlert('Vraag verwijderd', 'success');
+        };
+
+        // Export
+        exportBtn.addEventListener('click', async function() {
+            if (!videoFile || questions.length === 0) return;
+            
+            exportBtn.disabled = true;
+            exportBtn.innerHTML = '<span>Bezig met exporteren...</span>';
+            
+            try {
+                const zip = new JSZip();
+                
+                // Video toevoegen
+                zip.file('video.' + videoFile.name.split('.').pop(), videoBlob);
+                
+                // Data toevoegen
+                const data = {
+                    videoFileName: 'video.' + videoFile.name.split('.').pop(),
+                    questions: questions
+                };
+                zip.file('data.json', JSON.stringify(data, null, 2));
+                
+                // Player HTML toevoegen (we maken deze zo)
+                const playerHTML = generatePlayerHTML();
+                zip.file('index.html', playerHTML);
+                
+                // ZIP genereren en downloaden
+                const content = await zip.generateAsync({type: 'blob'});
+                const url = URL.createObjectURL(content);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'interactieve-video-' + Date.now() + '.zip';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                showAlert('Video succesvol geëxporteerd!', 'success');
+            } catch (error) {
+                showAlert('Fout bij exporteren: ' + error.message, 'error');
+            } finally {
+                exportBtn.disabled = false;
+                exportBtn.innerHTML = `
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="7 10 12 15 17 10"></polyline>
+                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                    </svg>
+                    Download Interactieve Video (ZIP)
+                `;
+            }
+        });
+
+        // Helper Functions
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${mins}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        function formatBytes(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+        }
+
+        function updateExportButton() {
+            exportBtn.disabled = !videoFile || questions.length === 0;
+        }
+
+        function showAlert(message, type) {
+            alert.textContent = message;
+            alert.className = `alert alert-${type} active`;
+            setTimeout(() => {
+                alert.classList.remove('active');
+            }, 4000);
+        }
+
+        function generatePlayerHTML() {
+            // Genereer de complete player HTML
+            return `<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactieve Video</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 900px;
+            width: 100%;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .video-wrapper {
+            position: relative;
+            background: #000;
+        }
+
+        video {
+            width: 100%;
+            display: block;
+        }
+
+        .question-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .question-overlay.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .question-card {
+            background: white;
+            border-radius: 12px;
+            padding: 32px;
+            max-width: 600px;
+            width: 100%;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .question-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 24px;
+            line-height: 1.4;
+        }
+
+        .answers {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .answer-option {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .answer-option:hover {
+            background: #e9ecef;
+            border-color: #4f46e5;
+        }
+
+        .answer-option input[type="radio"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            accent-color: #4f46e5;
+        }
+
+        .answer-option label {
+            flex: 1;
+            cursor: pointer;
+            font-size: 16px;
+            color: #1a1a1a;
+        }
+
+        .answer-option.selected {
+            background: #eef2ff;
+            border-color: #4f46e5;
+        }
+
+        .answer-option.correct {
+            background: #d1fae5;
+            border-color: #10b981;
+        }
+
+        .answer-option.incorrect {
+            background: #fee2e2;
+            border-color: #ef4444;
+        }
+
+        .answer-option.disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .question-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background: #4f46e5;
+            color: white;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: #4338ca;
+            transform: translateY(-1px);
+        }
+
+        .btn-primary:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: #e5e7eb;
+            color: #1a1a1a;
+        }
+
+        .btn-secondary:hover {
+            background: #d1d5db;
+        }
+
+        .feedback {
+            display: none;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            font-size: 15px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .feedback.active {
+            display: block;
+        }
+
+        .feedback.correct {
+            background: #d1fae5;
+            border: 2px solid #10b981;
+            color: #065f46;
+        }
+
+        .feedback.incorrect {
+            background: #fee2e2;
+            border: 2px solid #ef4444;
+            color: #991b1b;
+        }
+
+        .info-bar {
+            background: #f8f9fa;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .score {
+            font-size: 16px;
+            color: #6b7280;
+        }
+
+        .score strong {
+            color: #1a1a1a;
+            font-weight: 600;
+        }
+
+        .progress {
+            font-size: 14px;
+            color: #9ca3af;
+        }
+
+        .completion-screen {
+            padding: 48px 32px;
+            text-align: center;
+            display: none;
+        }
+
+        .completion-screen.active {
+            display: block;
+        }
+
+        .completion-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 24px;
+            background: #d1fae5;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .completion-icon svg {
+            width: 48px;
+            height: 48px;
+            stroke: #10b981;
+        }
+
+        .completion-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 12px;
+        }
+
+        .completion-score {
+            font-size: 48px;
+            font-weight: 700;
+            color: #4f46e5;
+            margin-bottom: 24px;
+        }
+
+        .completion-message {
+            font-size: 16px;
+            color: #6b7280;
+            margin-bottom: 32px;
+        }
+
+        @media (max-width: 768px) {
+            body { padding: 12px; }
+            .question-card { padding: 24px; }
+            .question-title { font-size: 18px; }
+            .answer-option label { font-size: 15px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="video-wrapper">
+            <video id="videoPlayer" controls></video>
+            
+            <div id="questionOverlay" class="question-overlay">
+                <div class="question-card">
+                    <div id="feedback" class="feedback"></div>
+                    <div id="questionTitle" class="question-title"></div>
+                    <div id="answersContainer" class="answers"></div>
+                    <div class="question-actions">
+                        <button id="submitBtn" class="btn btn-primary">Controleer Antwoord</button>
+                        <button id="continueBtn" class="btn btn-secondary" style="display: none;">Ga Verder</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="infoBar" class="info-bar">
+            <div class="score">Score: <strong id="scoreDisplay">0 / 0</strong></div>
+            <div class="progress">Vraag <span id="currentQuestion">0</span> van <span id="totalQuestions">0</span></div>
+        </div>
+
+        <div id="completionScreen" class="completion-screen">
+            <div class="completion-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+            </div>
+            <div class="completion-title">Video Voltooid!</div>
+            <div class="completion-score" id="finalScore"></div>
+            <div class="completion-message" id="completionMessage"></div>
+            <button class="btn btn-primary" onclick="resetVideo()">Opnieuw Bekijken</button>
+        </div>
+    </div>
+
+    <script>
+        let videoData = null;
+        let currentQuestionIndex = 0;
+        let correctAnswers = 0;
+        let answeredQuestions = new Set();
+        let waitingForAnswer = false;
+
+        async function loadData() {
+            try {
+                const response = await fetch('data.json');
+                videoData = await response.json();
+                
+                const video = document.getElementById('videoPlayer');
+                video.src = videoData.videoFileName;
+                
+                document.getElementById('totalQuestions').textContent = videoData.questions.length;
+                updateScore();
+                setupVideoEvents();
+            } catch (error) {
+                console.error('Fout bij laden van data:', error);
+                alert('Kon de video data niet laden.');
+            }
+        }
+
+        function setupVideoEvents() {
+            const video = document.getElementById('videoPlayer');
+            
+            video.addEventListener('timeupdate', function() {
+                if (waitingForAnswer) return;
+                const currentTime = video.currentTime;
+                
+                for (let i = 0; i < videoData.questions.length; i++) {
+                    const question = videoData.questions[i];
+                    if (!answeredQuestions.has(i) && currentTime >= question.time && currentTime < question.time + 0.5) {
+                        showQuestion(i);
+                        break;
+                    }
+                }
+            });
+
+            video.addEventListener('ended', function() {
+                if (answeredQuestions.size === videoData.questions.length) {
+                    showCompletion();
+                }
+            });
+        }
+
+        function showQuestion(index) {
+            const video = document.getElementById('videoPlayer');
+            video.pause();
+            waitingForAnswer = true;
+            currentQuestionIndex = index;
+            
+            const question = videoData.questions[index];
+            document.getElementById('questionTitle').textContent = question.question;
+            document.getElementById('currentQuestion').textContent = answeredQuestions.size + 1;
+            
+            const answersContainer = document.getElementById('answersContainer');
+            answersContainer.innerHTML = '';
+            
+            question.answers.forEach((answer, i) => {
+                const answerDiv = document.createElement('div');
+                answerDiv.className = 'answer-option';
+                answerDiv.innerHTML = \`
+                    <input type="radio" name="answer" id="answer\${i}" value="\${i}">
+                    <label for="answer\${i}">\${answer.text}</label>
+                \`;
+                
+                answerDiv.addEventListener('click', function() {
+                    document.getElementById(\`answer\${i}\`).checked = true;
+                    document.querySelectorAll('.answer-option').forEach(opt => opt.classList.remove('selected'));
+                    answerDiv.classList.add('selected');
+                });
+                
+                answersContainer.appendChild(answerDiv);
+            });
+            
+            document.getElementById('submitBtn').style.display = 'block';
+            document.getElementById('continueBtn').style.display = 'none';
+            document.getElementById('feedback').classList.remove('active', 'correct', 'incorrect');
+            document.getElementById('questionOverlay').classList.add('active');
+        }
+
+        document.getElementById('submitBtn').addEventListener('click', function() {
+            const selectedAnswer = document.querySelector('input[name="answer"]:checked');
+            if (!selectedAnswer) {
+                alert('Selecteer eerst een antwoord');
+                return;
+            }
+            
+            const answerIndex = parseInt(selectedAnswer.value);
+            const question = videoData.questions[currentQuestionIndex];
+            const isCorrect = question.answers[answerIndex].correct;
+            
+            const feedback = document.getElementById('feedback');
+            if (isCorrect) {
+                feedback.textContent = '✓ Correct! Goed gedaan.';
+                feedback.className = 'feedback active correct';
+                correctAnswers++;
+            } else {
+                const correctAnswer = question.answers.find(a => a.correct);
+                feedback.textContent = \`✗ Helaas, dat is niet correct. Het juiste antwoord is: \${correctAnswer.text}\`;
+                feedback.className = 'feedback active incorrect';
+            }
+            
+            document.querySelectorAll('.answer-option').forEach((opt, i) => {
+                opt.classList.add('disabled');
+                opt.style.pointerEvents = 'none';
+                if (question.answers[i].correct) {
+                    opt.classList.add('correct');
+                } else if (i === answerIndex && !isCorrect) {
+                    opt.classList.add('incorrect');
+                }
+            });
+            
+            answeredQuestions.add(currentQuestionIndex);
+            updateScore();
+            document.getElementById('submitBtn').style.display = 'none';
+            document.getElementById('continueBtn').style.display = 'block';
+        });
+
+        document.getElementById('continueBtn').addEventListener('click', function() {
+            document.getElementById('questionOverlay').classList.remove('active');
+            waitingForAnswer = false;
+            document.getElementById('videoPlayer').play();
+        });
+
+        function updateScore() {
+            const total = videoData.questions.length;
+            document.getElementById('scoreDisplay').textContent = \`\${correctAnswers} / \${total}\`;
+        }
+
+        function showCompletion() {
+            const video = document.getElementById('videoPlayer');
+            video.pause();
+            
+            const total = videoData.questions.length;
+            const percentage = Math.round((correctAnswers / total) * 100);
+            document.getElementById('finalScore').textContent = \`\${percentage}%\`;
+            
+            let message = '';
+            if (percentage === 100) message = 'Uitstekend! Je hebt alle vragen correct beantwoord.';
+            else if (percentage >= 80) message = 'Goed gedaan! Je hebt de meeste vragen correct beantwoord.';
+            else if (percentage >= 60) message = 'Niet slecht, maar er is ruimte voor verbetering.';
+            else message = 'Probeer het nog eens om je score te verbeteren.';
+            
+            document.getElementById('completionMessage').textContent = message;
+            document.getElementById('completionScreen').classList.add('active');
+            document.getElementById('infoBar').style.display = 'none';
+        }
+
+        function resetVideo() {
+            const video = document.getElementById('videoPlayer');
+            video.currentTime = 0;
+            video.play();
+            currentQuestionIndex = 0;
+            correctAnswers = 0;
+            answeredQuestions.clear();
+            waitingForAnswer = false;
+            updateScore();
+            document.getElementById('completionScreen').classList.remove('active');
+            document.getElementById('infoBar').style.display = 'flex';
+        }
+
+        loadData();
+    </script>
+</body>
+</html>`;
+        }
+    </script>
+</body>
+</html>
