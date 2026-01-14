@@ -28,6 +28,11 @@
         .completion.active { display: block; }
         .completion h2 { color: #333; margin-bottom: 20px; }
         .completion .score { font-size: 48px; color: #4CAF50; margin: 20px 0; }
+        .completion .score.failed { color: #dc3545; }
+        .btn-retry { background: #6c757d; }
+        .btn-retry:hover { background: #5a6268; }
+        .btn-continue { background: #28a745; }
+        .btn-continue:hover { background: #218838; }
     </style>
 </head>
 <body>
@@ -53,8 +58,9 @@
         <div id="completion" class="completion">
             <h2>Video Voltooid!</h2>
             <div id="finalScore" class="score"></div>
-            <p id="finalMessage"></p>
-            <button onclick="location.reload()">Opnieuw Bekijken</button>
+            <p id="finalMessage" style="font-size: 18px; margin: 20px 0;"></p>
+            <button onclick="location.reload()" class="btn-retry">🔄 Opnieuw Bekijken</button>
+            <button id="continueToRise" class="btn-continue" style="display: none;">✅ Ga Verder met E-learning</button>
         </div>
     </div>
     <script>
@@ -113,12 +119,13 @@
             const isCorrect = q.answers[idx].correct;
             
             if (isCorrect) {
-                feedback.textContent = '✓ Correct!';
+                feedback.textContent = q.correctFeedback || '✓ Correct!';
                 feedback.className = 'feedback correct show';
                 correct++;
             } else {
                 const correctA = q.answers.find(function(a) { return a.correct; });
-                feedback.textContent = '✗ Fout. Juiste antwoord: ' + correctA.text;
+                const incorrectText = q.incorrectFeedback || '✗ Fout. Juiste antwoord:';
+                feedback.textContent = incorrectText + ' ' + correctA.text;
                 feedback.className = 'feedback incorrect show';
             }
             
@@ -147,12 +154,44 @@
         function showCompletion() {
             video.pause();
             const pct = Math.round((correct / data.questions.length) * 100);
-            document.getElementById('finalScore').textContent = pct + '%';
+            
+            // Minimaal 50% nodig om te slagen
+            const passed = pct >= 50;
+            
+            const scoreElement = document.getElementById('finalScore');
+            scoreElement.textContent = pct + '%';
+            
+            // Kleur aanpassen op basis van score
+            if (passed) {
+                scoreElement.classList.remove('failed');
+            } else {
+                scoreElement.classList.add('failed');
+            }
+            
             let msg = '';
-            if (pct === 100) msg = 'Perfect! Alle vragen goed!';
-            else if (pct >= 80) msg = 'Goed gedaan!';
-            else if (pct >= 60) msg = 'Niet slecht!';
-            else msg = 'Probeer het nog eens!';
+            if (passed) {
+                // GESLAAGD - Mag verder
+                if (pct === 100) {
+                    msg = '🎉 Perfect! Alle vragen goed! Je mag verder met de e-learning.';
+                } else if (pct >= 80) {
+                    msg = '✅ Goed gedaan! Je hebt ' + pct + '% gescoord. Je mag verder met de e-learning.';
+                } else {
+                    msg = '✅ Gehaald! Je hebt ' + pct + '% gescoord (minimaal 50% vereist). Je mag verder met de e-learning.';
+                }
+                
+                // BELANGRIJK: Stuur voltooiingssignaal naar Rise 360
+                window.parent.postMessage({ type: 'complete' }, '*');
+                
+                // Toon "Ga Verder" knop
+                document.getElementById('continueToRise').style.display = 'inline-block';
+            } else {
+                // NIET GESLAAGD - Moet opnieuw
+                msg = '❌ Helaas! Je hebt ' + pct + '% gescoord. Je hebt minimaal 50% nodig om verder te gaan. Bekijk de video opnieuw.';
+                
+                // Verberg "Ga Verder" knop
+                document.getElementById('continueToRise').style.display = 'none';
+            }
+            
             document.getElementById('finalMessage').textContent = msg;
             infoBar.style.display = 'none';
             completion.classList.add('active');
