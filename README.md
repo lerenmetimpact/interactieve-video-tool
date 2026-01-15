@@ -1,129 +1,178 @@
-## 📖 Hoe maak je een interactieve video?
+# Interactieve Video Editor v2 - NIEUWE FEATURES! 🎉
 
-### 1. Upload je video
-- Klik op "Upload Video"
-- Kies een MP4, WebM of OGG bestand
-- De video wordt direct in de preview geladen
+## ✨ Wat is er nieuw?
 
-**Let op:** Houd je video onder de 500 MB voor beste prestaties in Rise 360.
+### 1. Custom Feedback per Vraag
+Je kunt nu **zelf de feedback teksten instellen** voor elke vraag:
+- **Correct feedback**: Wat zie je bij een goed antwoord?
+- **Incorrect feedback**: Wat zie je bij een fout antwoord?
 
-### 2. Voeg vragen toe
-Voor elke vraag:
-1. **Tijdstempel**: Op welk moment (in seconden) moet de vraag verschijnen?
-   - Bijvoorbeeld: `30` voor 30 seconden, of `90` voor 1:30
-2. **Vraag**: Typ je vraag
-3. **Antwoorden**: Vul 2-4 antwoorden in
-4. **Juiste antwoord**: Vink het correcte antwoord aan
-5. Klik op "Vraag Toevoegen"
+**Voorbeelden:**
+- Correct: "Uitstekend! Je begrijpt het concept!" 
+- Incorrect: "Niet helemaal, kijk nog eens naar minuut 2:30"
 
-### 3. Download je interactieve video
-1. Klik op "Download Interactieve Video (ZIP)"
-2. Je krijgt een ZIP-bestand met:
-   - `index.html` - De interactieve video player
-   - `video.xxx` - Je video bestand
-   - `data.json` - De vragen en antwoorden
+### 2. Preview Functie 🎬
+Test je interactieve video **direct in de browser** voordat je exporteert!
+- Klik op "▶️ Preview Interactieve Video"
+- Test alle vragen en feedback
+- Bekijk je score
+- Opnieuw proberen of sluiten
 
-### 4. Gebruik in Rise 360
-1. Open Rise 360
-2. Voeg een "Code Block" toe
-3. Upload het ZIP-bestand
-4. Of: pak het ZIP uit en upload alleen de bestanden
+## 🚀 Hoe gebruik je dit?
 
-### 5. Gebruik in een LMS
-1. Pak het ZIP bestand uit
-2. Upload alle bestanden naar je LMS
-3. Link naar `index.html`
+### Stap 1: Upload Video
+1. Klik op "📹 Selecteer Video"
+2. Kies een video bestand
+3. De video wordt geladen en je ziet de informatie
 
-## 🎯 Wat kan de tool?
+### Stap 2: Voeg Vragen Toe
+Voor elke vraag vul je in:
+1. **Tijdstempel** - Wanneer moet de vraag verschijnen? (in seconden)
+2. **Vraag** - De vraag zelf
+3. **Feedback bij correct** - Wat zie je bij een goed antwoord?
+4. **Feedback bij fout** - Wat zie je bij een fout antwoord?
+5. **Antwoorden** - 2-4 antwoordopties
+6. **Vink het juiste antwoord aan**
+7. Klik "➕ Vraag Toevoegen"
 
-### ✅ Wel mogelijk:
-- Meerkeuze vragen toevoegen op elk moment in de video
-- 2-4 antwoordopties per vraag
-- Automatisch pauzeren bij vragen
-- Feedback op antwoorden (goed/fout)
-- Score bijhouden
-- Eindscherm met resultaat
-- Video opnieuw bekijken
+**Voorbeeld:**
+```
+Tijdstempel: 45
+Vraag: Wat is de hoofdfunctie van mitochondriën?
+Correct feedback: Perfect! Je hebt goed opgelet bij de uitleg over celbiologie.
+Incorrect feedback: Kijk nog eens terug naar 0:30 waar we dit bespreken.
 
-### ❌ Nog niet mogelijk (komt later):
-- Meerkeuze vinkvragen (meerdere antwoorden)
-- Hotspot vragen
-- Open vragen
-- Video's opslaan in de tool
+Antwoorden:
+☑️ Energie productie (ATP)
+○ DNA replicatie
+○ Eiwit synthese
+○ Cel divisie
+```
 
-## 💡 Tips
+### Stap 3: Preview Je Video
+1. Klik op "▶️ Preview Interactieve Video" 
+2. De video start in een volledig scherm modal
+3. Test alle vragen:
+   - Video pauzeert automatisch bij vragen
+   - Selecteer een antwoord
+   - Klik "Controleer"
+   - Zie je custom feedback!
+   - Klik "Ga Verder"
+4. Aan het einde zie je je score
+5. Probeer opnieuw of sluit de preview
 
-### Video optimaliseren voor Rise 360
-- Gebruik MP4 formaat
-- Houd de bestandsgrootte onder 500 MB
-- Gebruik H.264 codec voor beste compatibiliteit
+### Stap 4: Exporteer
+1. Als alles goed is, klik "💾 Download ZIP"
+2. Je krijgt een ZIP met:
+   - index.html (de interactieve player)
+   - video.xxx (je video)
+   - data.json (vragen en feedback)
+3. Upload naar Rise 360 of LMS
 
-### Goede vragen maken
-- Plaats vragen op logische momenten
-- Geef duidelijke feedback bij foute antwoorden
-- Test je video voordat je hem publiceert
+## 📝 Tips voor Goede Feedback
 
-### Video's comprimeren
-Als je video te groot is, gebruik dan:
-- HandBrake (gratis, voor Mac/Windows/Linux)
-- Online compressors zoals CloudConvert
-- Kies een lagere resolutie (720p is vaak voldoende)
+### Correcte Antwoorden:
+- ✅ "Uitstekend! Dit toont aan dat je het principe begrijpt"
+- ✅ "Perfect! Je hebt de kernpunten goed onthouden"
+- ✅ "Goed gedaan! Dit is inderdaad de beste aanpak"
 
-## 🔧 Technische details
+### Foute Antwoorden:
+- ✅ "Niet helemaal. Kijk nog eens naar het voorbeeld op 2:15"
+- ✅ "Bijna! Let op het verschil tussen X en Y"
+- ✅ "Probeer opnieuw. Hint: denk aan wat we zeiden over..."
 
-### Browser vereisten
-- Moderne browser (Chrome, Firefox, Safari, Edge)
+### Feedback Best Practices:
+1. **Wees specifiek** - Verwijs naar momenten in de video
+2. **Wees positief** - Ook bij foute antwoorden
+3. **Geef hints** - Help de leerder zonder direct het antwoord te geven
+4. **Varieer** - Gebruik verschillende feedback teksten voor verschillende vragen
+
+## 🎯 Workflow voor Ontwikkelaars
+
+### Ontwikkel → Test → Exporteer
+1. **Ontwikkel**: Maak je vragen met custom feedback
+2. **Test**: Gebruik Preview om alles te testen
+3. **Itereer**: Pas feedback aan waar nodig
+4. **Exporteer**: Als alles perfect is, download de ZIP
+5. **Implementeer**: Upload naar Rise 360 of LMS
+
+### Test Checklist:
+- [ ] Verschijnen vragen op de juiste momenten?
+- [ ] Is de feedback duidelijk en behulpzaam?
+- [ ] Werken alle antwoorden correct?
+- [ ] Is de score berekening correct?
+- [ ] Ziet het eindscherm er goed uit?
+
+## 🆕 Versie Verschillen
+
+### Versie 1.0 (Origineel):
+- Vaste feedback teksten
+- Geen preview
+- Direct exporteren
+
+### Versie 2.0 (Nieuw):
+- ✨ Custom feedback per vraag
+- ✨ Preview functie
+- ✨ Betere workflow
+
+## 💡 Voorbeelden van Gebruik
+
+### Voorbeeld 1: Training Video
+```
+Vraag: "Wat is de eerste stap bij het oplossen van een klacht?"
+Correct: "Precies! Actief luisteren is de basis van goede klantenservice."
+Incorrect: "Vergeet niet: we beginnen altijd met luisteren. Zie 1:20 voor meer uitleg."
+```
+
+### Voorbeeld 2: Product Demo
+```
+Vraag: "Welke knop gebruik je om een nieuw project te starten?"
+Correct: "Top! Je hebt de interface goed begrepen."
+Incorrect: "Kijk nog eens naar het dashboard dat we net lieten zien."
+```
+
+### Voorbeeld 3: Compliance Training
+```
+Vraag: "Is deze situatie volgens de regels toegestaan?"
+Correct: "Correct! Je hebt de regelgeving goed toegepast."
+Incorrect: "Let op artikel 3.2 dat we bespraken in het begin van de video."
+```
+
+## 🔧 Technische Details
+
+### Bestanden Nodig:
+- **editor.html** - De editor tool (upload dit naar GitHub)
+- **player.html** - De player template (upload dit ook naar GitHub)
+
+### Browser Vereisten:
+- Moderne browser (Chrome, Firefox, Edge, Safari)
 - JavaScript enabled
-- Geen extra plugins nodig
+- Geen plugins nodig
 
-### Bestandsformaten
-- **Video**: MP4, WebM, OGG
-- **Export**: ZIP bestand
-- **Data**: JSON formaat
+### Bestandsformaten:
+- Video: MP4, WebM, OGG
+- Export: ZIP bestand
+- Max aanbevolen: 500MB voor Rise 360
 
-### Waar wordt data opgeslagen?
-- Nergens! Alles gebeurt in je browser
-- Je video wordt NIET geüpload naar een server
-- Alleen het ZIP-bestand dat je download bevat je video
+## ❓ Veelgestelde Vragen
 
-## 🐛 Problemen oplossen
+**Q: Kan ik verschillende feedback geven per fout antwoord?**
+A: Momenteel is de feedback per vraag (1x correct, 1x incorrect). Alle foute antwoorden krijgen dezelfde incorrecte feedback.
 
-### De tool laadt niet
-- Controleer of GitHub Pages correct is geactiveerd
-- Wacht 2-3 minuten na het activeren
-- Ververs de pagina (Ctrl+F5 / Cmd+Shift+R)
+**Q: Werkt de preview ook zonder internet?**
+A: Ja! De preview werkt volledig lokaal in je browser.
 
-### Video speelt niet af
-- Controleer of je browser het video formaat ondersteunt
-- Probeer een MP4 bestand
-- Check of de video niet corrupt is
+**Q: Kan ik de feedback later nog aanpassen?**
+A: Helaas niet in de editor. Je moet de vraag verwijderen en opnieuw toevoegen met nieuwe feedback.
 
-### Export werkt niet
-- Controleer of je minimaal 1 vraag hebt toegevoegd
-- Probeer een kleinere video (< 500 MB)
-- Test in een andere browser
+**Q: Hoeveel vragen kan ik toevoegen?**
+A: Technisch onbeperkt, maar houd het praktisch. 5-10 vragen per video is ideaal.
 
-### In Rise 360 werkt het niet
-- Pak het ZIP bestand eerst uit
-- Upload alle bestanden individueel
-- Zorg dat `index.html`, `video.xxx` en `data.json` in dezelfde map staan
+**Q: Werkt dit ook in Rise 360?**
+A: Ja! Upload het geëxporteerde ZIP in een Rise 360 Code Block.
 
-## 📝 Licentie
+## 🎉 Veel Succes!
 
-Dit project is volledig gratis te gebruiken voor educatieve doeleinden.
+Je hebt nu alle tools om professionele interactieve video's te maken met custom feedback en preview functionaliteit. 
 
-## 🎉 Volgende versies
-
-In toekomstige versies komen:
-- Meerkeuze vinkvragen (meerdere correcte antwoorden)
-- Hotspot vragen (klikbare gebieden in de video)
-- Thema's en styling opties
-- Video timestamp preview
-
-## 💬 Vragen of feedback?
-
-Heb je vragen of suggesties? Gebruik het "Issues" tabblad in je GitHub repository om notities te maken voor jezelf.
-
----
-
-**Veel plezier met het maken van interactieve video's!** 🎬✨
+**Happy creating!** 🚀
