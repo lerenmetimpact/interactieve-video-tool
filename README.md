@@ -1,4 +1,4 @@
-# Interactieve Video Editor v2 - NIEUWE FEATURES! 🎉
+# Interactieve Video Editor - NIEUWE FEATURES! 🎉
 
 ## ✨ Wat is er nieuw?
 
